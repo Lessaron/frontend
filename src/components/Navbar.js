@@ -1,0 +1,13 @@
+import {Link } from "react-router-dom";
+export default function Navbar() {
+    return (
+        <nav className="navbar">
+        <h1 className="navbar-title">Cadastro de Clientes</h1>
+        <div>
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/cliente"    className="nav-link">Cadastro</Link>
+        </div>
+      </nav>
+    );
+  }
+  

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ImageViewer from 'react-simple-image-viewer';
+import { toast } from "react-toastify";
 
 export default function FotoUploader({ clienteId }) {
   const [fotos, setFotos] = useState([]);
@@ -38,11 +39,18 @@ export default function FotoUploader({ clienteId }) {
     for (const file of inputRef.current.files) {
       formData.append("fotos", file);   
     }
+    if(inputRef.current.files.length == 0)
+      return;
 
     await fetch(`http://localhost:5000/api/clientes/${clienteId}/fotos`, {
       method: "POST",
       body: formData
-    });
+    }).then(() => {
+          toast.success("Upload feito com sucesso!", {
+            position: "top-center",
+            autoClose: 2000,
+          })
+        });
 
     // Atualiza a lista após upload
     await fetchFotos();
@@ -52,7 +60,12 @@ export default function FotoUploader({ clienteId }) {
   const handleDelete = async (fotoId) => {
     await fetch(`http://localhost:5000/api/clientes/fotos/${fotoId}`, {
       method: "DELETE"
-    });
+    }).then(() => {
+          toast.success("Foto deletada com sucesso!", {
+            position: "top-center",
+            autoClose: 2000,
+          })
+        });;
     
     // Atualiza a lista após deletar
     await fetchFotos();

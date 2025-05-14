@@ -1,7 +1,7 @@
 import {Link } from "react-router-dom";
 export default function Navbar() {
     return (
-        <nav className="navbar">
+        <nav className="navbar h-12">
         <h1 className="navbar-title">Cadastro de Clientes</h1>
         <div>
           <Link to="/" className="nav-link">Home</Link>

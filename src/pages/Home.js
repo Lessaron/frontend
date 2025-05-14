@@ -1,31 +1,54 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import './Home.css';
+
 export default function Home() {
   const [clientes, setClientes] = useState([]);
+  const [clienteParaExcluir, setClienteParaExcluir] = useState(null);
 
   useEffect(() => {
+    carregarClientes();
+  }, []);
+
+  function carregarClientes() {
     fetch("http://localhost:5000/api/clientes")
       .then((res) => {
         if (!res.ok) throw new Error("Erro na resposta da API");
         return res.json();
       })
       .then((data) => {
-        console.log("Resposta da API:", data);
-        if (Array.isArray(data)) {
-          setClientes(data);
-        } else if (Array.isArray(data.clientes)) {
-          setClientes(data.clientes);
-        } else {
-          console.warn("Formato inesperado:", data);
-          setClientes([]);
-        }
+        if (Array.isArray(data)) setClientes(data);
+        else if (Array.isArray(data.clientes)) setClientes(data.clientes);
+        else setClientes([]);
       })
       .catch((err) => {
         console.error("Erro ao carregar clientes:", err);
         setClientes([]);
       });
-  }, []);
+  }
+
+  function confirmarExclusao(cliente) {
+    setClienteParaExcluir(cliente);
+  }
+
+  function cancelarExclusao() {
+    setClienteParaExcluir(null);
+  }
+
+  function excluirCliente() {
+    fetch(`http://localhost:5000/api/clientes/${clienteParaExcluir.Id}`, {
+      method: "DELETE",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erro ao deletar cliente");
+        carregarClientes();
+        setClienteParaExcluir(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("Erro ao excluir cliente");
+      });
+  }
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -51,33 +74,45 @@ export default function Home() {
                 key={cliente.Id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <Link to={`/cliente/${cliente.Id}`} className="block">
-                  <div className="p-6">
-                    <div className="flex items-center mb-4">
-                      <div className="">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {cliente.Name || "Cliente sem nome"}
-                        </h3>
-                        {cliente.Surname && (
-                          <p className="text-gray-600">{cliente.Surname}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="border-t border-gray-100 pt-4">
-                      <div className="flex justify-between text-sm text-gray-500">
-                        <span>ID:</span>
-                        <span className="text-gray-700">{cliente.Id}</span>
-                      </div>
-                      {/* Adicione mais campos aqui conforme necessário */}
-                    </div>
-                  </div>
-                </Link>
+                <div className="p-6 h-full flex flex-col justify-between">
+                  <Link to={`/cliente/${cliente.Id}`} className="block mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900" title={cliente.Name}>
+                      {cliente.Name || "Cliente sem nome"}
+                    </h3>
+                    {cliente.Surname && <p className="text-gray-600">{cliente.Surname}</p>}
+                  </Link>
+                  <button
+                    onClick={() => confirmarExclusao(cliente)}
+                    className="btn-confirm-delete w-20"
+                  >
+                    Deletar
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Modal de confirmação */}
+      {clienteParaExcluir && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 className="modal-title">Confirmar exclusão</h2>
+            <p className="mb-6">
+              Deseja realmente excluir o cliente <strong>{clienteParaExcluir.Name}</strong>?
+            </p>
+            <div className="modal-buttons">
+              <button onClick={cancelarExclusao} className="btn-cancel">
+                Cancelar
+              </button>
+              <button onClick={excluirCliente} className="btn-confirm-delete">
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

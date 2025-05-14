@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import Editor from "../components/Editor";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Cadastro() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     Name: "",
     Adress: "",
@@ -13,36 +14,19 @@ export default function Cadastro() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      fetch(`http://localhost:5000/api/clientes/${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData({
-            Name: data.Name || "",
-            Adress: data.Adress || "",
-            Habits: data.Habits || "",
-            Accompaniment: data.Accompaniment || ""
-          });
-          setIsLoading(false);
-        })
-        .catch((err) => console.error("Erro ao carregar cliente:", err));
-    } else {
-      setFormData({
-        Name: "",
-        Adress: "",
-        Habits: "",
-        Accompaniment: ""
-      });
-      setIsLoading(false);
-    }
+    
+    setFormData({
+      Name: "",
+      Adress: "",
+      Habits: "",
+      Accompaniment: ""
+    });
+    setIsLoading(false);
+    
   }, [id]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleEditorChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -59,7 +43,12 @@ export default function Cadastro() {
     });
 
     if (response.ok) {
-      console.log(id ? "Cliente atualizado com sucesso!" : "Cliente cadastrado com sucesso!");
+      toast.success(`${formData.Name} cadastrado com sucesso!`, {
+        position: "top-center",
+        autoClose: 2000,
+      });
+
+      navigate("/");
     }
   };
 
@@ -73,6 +62,7 @@ export default function Cadastro() {
         <input
           type="text"
           name="Name"
+          required
           placeholder="Nome"
           value={formData.Name}
           onChange={handleChange}
@@ -85,6 +75,7 @@ export default function Cadastro() {
         <input
           type="text"
           name="Adress"
+          required
           placeholder="Endereço"
           value={formData.Adress}
           onChange={handleChange}
@@ -93,16 +84,25 @@ export default function Cadastro() {
       </div>
       <div>
         <label className="block mb-1 font-semibold">Hábitos</label>
-        <Editor value={formData.Habits} onChange={(value) => handleEditorChange("Habits", value)} />
+        <textarea
+          name="Habits"
+          placeholder="Descreva os hábitos"
+          value={formData.Habits}
+          onChange={handleChange}
+          className="w-full p-2 rounded"
+          rows={6}
+        />
       </div>
+
       <div>
         <label className="block mb-1 font-semibold">Acompanhamento</label>
-        <Editor
-          key={`accompaniment-${id || 'new'}`}
+        <textarea
+          name="Accompaniment"
+          placeholder="Descreva o acompanhamento"
           value={formData.Accompaniment}
-          onChange={(value) => 
-            setFormData((prev) => ({ ...prev, Accompaniment: value }))
-          }
+          onChange={handleChange}
+          className="w-full p-2 rounded"
+          rows={6}
         />
       </div>
       <button type="submit" className="register-button">

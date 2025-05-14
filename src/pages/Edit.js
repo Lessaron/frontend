@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Editor from "../components/Editor";
 import FotoUploader from "../components/FotoUploader";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Edit() {
   const { id } = useParams();
@@ -42,10 +42,6 @@ export default function Edit() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleEditorChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = id
@@ -60,6 +56,10 @@ export default function Edit() {
     });
 
     if (response.ok) {
+      toast.success("Cliente atualizado com sucesso!", {
+        position: "top-center",
+        autoClose: 2000,
+      });
       console.log(id ? "Cliente atualizado com sucesso!" : "Cliente cadastrado com sucesso!");
     }
   };
@@ -67,10 +67,9 @@ export default function Edit() {
   if (isLoading) return <div className="p-4">Carregando...</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="cadastro-form">
+    <form onSubmit={handleSubmit} className="cadastro-form space-y-4">
       <div>
         <label className="block mb-1 font-semibold">Nome</label>
-
         <input
           type="text"
           name="Name"
@@ -79,8 +78,8 @@ export default function Edit() {
           onChange={handleChange}
           className="w-full p-2 rounded input-field"
         />
-
       </div>
+
       <div>
         <label className="block mb-1 font-semibold">Endereço</label>
         <input
@@ -92,26 +91,36 @@ export default function Edit() {
           className="w-full p-2 rounded input-field"
         />
       </div>
+
       <div>
         <label className="block mb-1 font-semibold">Hábitos</label>
-        <Editor value={formData.Habits} onChange={(value) => handleEditorChange("Habits", value)} />
-      </div>
-      <div>
-        <label className="block mb-1 font-semibold">Acompanhamento</label>
-        <Editor
-          key={`accompaniment-${id || 'new'}`}
-          value={formData.Accompaniment}
-          onChange={(value) => 
-            setFormData((prev) => ({ ...prev, Accompaniment: value }))
-          }
+        <textarea
+          name="Habits"
+          placeholder="Descreva os hábitos"
+          value={formData.Habits}
+          onChange={handleChange}
+          className="w-full p-2 rounded"
+          rows={6}
         />
       </div>
+
+      <div>
+        <label className="block mb-1 font-semibold">Acompanhamento</label>
+        <textarea
+          name="Accompaniment"
+          placeholder="Descreva o acompanhamento"
+          value={formData.Accompaniment}
+          onChange={handleChange}
+          className="w-full p-2 rounded"
+          rows={6}
+        />
+      </div>
+
       <button type="submit" className="register-button">
         {id ? "Atualizar" : "Cadastrar"}
       </button>
+
       {id && <FotoUploader clienteId={id} />}
     </form>
-
-    
   );
 }

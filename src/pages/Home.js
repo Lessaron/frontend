@@ -57,7 +57,7 @@ export default function Home() {
           <h2 className="text-2xl font-bold text-gray-800">Clientes Cadastrados</h2>
           <Link 
             to="/cliente" 
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+            className="px-4 py-2 rounded-md transition-colors btn-add"
           >
             Adicionar Cliente
           </Link>

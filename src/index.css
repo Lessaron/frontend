@@ -121,6 +121,9 @@ body {
   border-radius: 4px;
   margin: 10px 0;
 }
+.btn-add{
+  background-color: rgb(255, 197, 242);
+}
 .container {
   margin-top: 30px;
   display: flex;
